@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  effect,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MonitoringService } from '../../services/monitoring.service';
 import {
@@ -36,33 +43,70 @@ import { ServerFormComponent } from '../server-form/server-form.component';
           </p>
         </div>
 
-        <div class="flex items-center gap-3">
-          <div
-            class="flex items-center gap-2 text-[11px] font-semibold text-slate-500 px-4 py-2 bg-white shadow-sm border border-slate-200 rounded-full"
-          >
-            <div
-              class="w-2 h-2 rounded-full relative"
-              [class.bg-emerald-500]="!service.estEnChargement()"
-              [class.bg-amber-500]="service.estEnChargement()"
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <!-- Barre de Recherche -->
+          <div class="relative flex-1 md:flex-none md:w-64">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             >
-              <div
-                *ngIf="service.estEnChargement()"
-                class="absolute inset-0 rounded-full bg-amber-500 animate-ping opacity-75"
-              ></div>
-            </div>
-            {{
-              service.estEnChargement()
-                ? 'SYNCHRONISATION...'
-                : 'SYSTÈME CONNECTÉ'
-            }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              [value]="recherche()"
+              (input)="recherche.set($any($event.target).value)"
+              placeholder="Rechercher un client..."
+              class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+            />
           </div>
+
+          <!-- Bouton Rafraîchir -->
+          <button
+            (click)="rafraichir()"
+            [disabled]="service.estEnChargement()"
+            class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-all active:scale-95 disabled:opacity-50"
+            title="Rafraîchir les données"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              [class.animate-spin]="service.estEnChargement()"
+            >
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M3 21v-5h5" />
+            </svg>
+          </button>
 
           <button
             (click)="montrerFormulaire.set(true)"
             class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-slate-200 active:scale-95"
           >
             <span class="text-lg">+</span>
-            <span class="text-sm font-semibold">Ajouter un Client</span>
+            <span class="text-sm font-semibold hidden sm:inline"
+              >Nouveau Client</span
+            >
           </button>
         </div>
       </header>
@@ -185,33 +229,71 @@ import { ServerFormComponent } from '../server-form/server-form.component';
       </section>
 
       <section class="space-y-6">
-        <div class="flex justify-between items-center px-1">
-          <h2 class="text-xl font-bold text-slate-800">
-            Infrastructure Active
-          </h2>
-          <button
-            class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-2"
+        <div class="flex flex-wrap justify-between items-center gap-4 px-1">
+          <div class="flex items-center gap-4">
+            <h2 class="text-xl font-bold text-slate-800">
+              Infrastructure Active
+            </h2>
+            <!-- Indicateur de Filtres Actifs -->
+            <div *ngIf="hasActiveFilters()" class="flex items-center gap-2">
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"
+              ></span>
+              <span
+                class="text-[10px] font-bold text-blue-600 uppercase tracking-widest"
+                >Filtres Actifs</span
+              >
+              <button
+                (click)="reinitialiserFiltres()"
+                class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase underline decoration-dotted offset-2"
+              >
+                Tout effacer
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center gap-2 bg-white p-1 border border-slate-200 rounded-xl shadow-sm"
           >
-            TRIER PAR: STATUT
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+            <button
+              (click)="filtreStatut.set('tous')"
+              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [class]="
+                filtreStatut() === 'tous'
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-500 hover:bg-slate-50'
+              "
             >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
+              TOUS
+            </button>
+            <button
+              (click)="filtreStatut.set('online')"
+              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [class]="
+                filtreStatut() === 'online'
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-slate-500 hover:bg-slate-50'
+              "
+            >
+              EN LIGNE
+            </button>
+            <button
+              (click)="filtreStatut.set('offline')"
+              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+              [class]="
+                filtreStatut() === 'offline'
+                  ? 'bg-rose-500 text-white'
+                  : 'text-slate-500 hover:bg-slate-50'
+              "
+            >
+              HORS LIGNE
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4">
           <div
-            *ngFor="let s of service.serveurs()"
+            *ngFor="let s of filteredServeurs()"
             class="group relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap md:flex-nowrap items-center gap-6 transition-all hover:border-slate-300 hover:shadow-lg hover:shadow-slate-100 animate-slide-up"
           >
             <div
@@ -327,8 +409,9 @@ import { ServerFormComponent } from '../server-form/server-form.component';
           </div>
         </div>
 
+        <!-- État vide : Aucun client du tout -->
         <div
-          *ngIf="service.serveurs().length === 0"
+          *ngIf="service.serveurs().length === 0 && !service.estEnChargement()"
           class="py-24 text-center bg-white border-2 border-dashed border-slate-200 rounded-3xl mt-10"
         >
           <div
@@ -358,6 +441,45 @@ import { ServerFormComponent } from '../server-form/server-form.component';
             monitoring en temps réel.
           </p>
         </div>
+
+        <!-- État vide : Aucun résultat avec filtres -->
+        <div
+          *ngIf="
+            service.serveurs().length > 0 && filteredServeurs().length === 0
+          "
+          class="py-24 text-center bg-white border-2 border-dashed border-slate-200 rounded-3xl mt-10"
+        >
+          <div
+            class="w-16 h-16 bg-blue-50 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">
+            Aucun résultat trouvé
+          </h3>
+          <p class="text-slate-500 text-sm max-w-xs mx-auto">
+            Il n'y a aucun client correspondant à vos filtres actuels.
+          </p>
+          <button
+            (click)="reinitialiserFiltres()"
+            class="mt-6 px-6 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-slate-200 active:scale-95"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
       </section>
     </div>
   `,
@@ -380,6 +502,32 @@ export class DashboardComponent implements OnInit {
   serveursEnPanne = signal(0);
   montrerFormulaire = signal(false);
 
+  // Recherche et Filtres
+  recherche = signal('');
+  filtreStatut = signal<'tous' | 'online' | 'offline'>('tous');
+
+  filteredServeurs = computed(() => {
+    const all = this.service.serveurs();
+    const query = this.recherche().toLowerCase();
+    const status = this.filtreStatut();
+
+    return all.filter((s) => {
+      const matchQuery =
+        s.nom.toLowerCase().includes(query) ||
+        s.adresseIp.toLowerCase().includes(query);
+      const isOnline = this.estEnLigne(s);
+      const matchStatus =
+        status === 'tous' ||
+        (status === 'online' && isOnline) ||
+        (status === 'offline' && !isOnline);
+      return matchQuery && matchStatus;
+    });
+  });
+
+  hasActiveFilters = computed(() => {
+    return this.recherche() !== '' || this.filtreStatut() !== 'tous';
+  });
+
   constructor() {
     effect(
       () => {
@@ -392,9 +540,17 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  rafraichir() {
+    this.service.chargerServeurs();
+  }
+
+  reinitialiserFiltres() {
+    this.recherche.set('');
+    this.filtreStatut.set('tous');
+  }
+
   ngOnInit() {
     this.service.chargerServeurs();
-    setInterval(() => this.service.chargerServeurs(), 30000);
   }
 
   getStatutClass(statut: StatutSante): string {
