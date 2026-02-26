@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   Serveur,
@@ -18,6 +18,37 @@ export class MonitoringService {
   // Signaux pour l'état réactif
   serveurs = signal<Serveur[]>([]);
   estEnChargement = signal<boolean>(false);
+  montrerFormulaire = signal<boolean>(false);
+
+  // Filtres globaux
+  recherche = signal('');
+  filtreStatut = signal<'tous' | 'online' | 'offline'>('tous');
+
+  filteredServeurs = computed(() => {
+    const all = this.serveurs();
+    const query = this.recherche().toLowerCase();
+    const status = this.filtreStatut();
+
+    return all.filter((s) => {
+      const matchQuery =
+        s.nom.toLowerCase().includes(query) ||
+        s.adresseIp.toLowerCase().includes(query);
+
+      // Logique de statut robuste (0 = Sain/Online)
+      const isOnline = Number(s.dernierStatut) === 0;
+
+      const matchStatus =
+        status === 'tous' ||
+        (status === 'online' && isOnline) ||
+        (status === 'offline' && !isOnline);
+
+      return matchQuery && matchStatus;
+    });
+  });
+
+  hasActiveFilters = computed(() => {
+    return this.recherche() !== '' || this.filtreStatut() !== 'tous';
+  });
 
   chargerServeurs() {
     this.estEnChargement.set(true);
@@ -45,5 +76,10 @@ export class MonitoringService {
 
   getIncidents(id: string): Observable<Incident[]> {
     return this.http.get<Incident[]>(`${this.apiUrl}/${id}/incidents`);
+  }
+
+  reinitialiserFiltres() {
+    this.recherche.set('');
+    this.filtreStatut.set('tous');
   }
 }

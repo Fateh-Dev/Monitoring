@@ -22,99 +22,12 @@ import { ServerFormComponent } from '../server-form/server-form.component';
   imports: [CommonModule, ServerFormComponent],
   template: `
     <div
-      class="dashboard animate-fade-in p-4 md:p-10 max-w-[1600px] mx-auto space-y-4 bg-[#fafafa] min-h-screen text-slate-900"
+      class="dashboard animate-fade-in p-4 md:p-10 max-w-[1600px] mx-auto space-y-8 bg-[#fafafa] min-h-screen text-slate-900"
     >
-      <header
-        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
-      >
-        <div class="space-y-1">
-          <div class="flex items-center gap-3">
-            <h1 class="text-3xl font-bold tracking-tight text-slate-900">
-              État de Supervision
-            </h1>
-            <span
-              class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full border border-blue-100"
-            >
-              Alpha V2
-            </span>
-          </div>
-          <p class="text-slate-500 text-sm font-medium">
-            Surveillance globale et télémétrie en temps réel
-          </p>
-        </div>
-
-        <div class="flex items-center gap-3 w-full md:w-auto">
-          <!-- Barre de Recherche -->
-          <div class="relative flex-1 md:flex-none md:w-64">
-            <span
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              [value]="recherche()"
-              (input)="recherche.set($any($event.target).value)"
-              placeholder="Rechercher un client..."
-              class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-            />
-          </div>
-
-          <!-- Bouton Rafraîchir -->
-          <button
-            (click)="rafraichir()"
-            [disabled]="service.estEnChargement()"
-            class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-all active:scale-95 disabled:opacity-50"
-            title="Rafraîchir les données"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              [class.animate-spin]="service.estEnChargement()"
-            >
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-              <path d="M3 21v-5h5" />
-            </svg>
-          </button>
-
-          <button
-            (click)="montrerFormulaire.set(true)"
-            class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-slate-200 active:scale-95"
-          >
-            <span class="text-lg">+</span>
-            <span class="text-sm font-semibold hidden sm:inline"
-              >Nouveau Client</span
-            >
-          </button>
-        </div>
-      </header>
-
       <app-server-form
-        *ngIf="montrerFormulaire()"
+        *ngIf="service.montrerFormulaire()"
         (ajouter)="onAjouterServeur($event)"
-        (annuler)="montrerFormulaire.set(false)"
+        (annuler)="service.montrerFormulaire.set(false)"
       ></app-server-form>
 
       <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -229,71 +142,69 @@ import { ServerFormComponent } from '../server-form/server-form.component';
       </section>
 
       <section class="space-y-6">
-        <div class="flex flex-wrap justify-between items-center gap-4 px-1">
+        <div class="flex flex-wrap justify-between items-center gap-6 px-1">
           <div class="flex items-center gap-4">
             <h2 class="text-xl font-bold text-slate-800">
               Infrastructure Active
             </h2>
             <!-- Indicateur de Filtres Actifs -->
-            <div *ngIf="hasActiveFilters()" class="flex items-center gap-2">
-              <span
-                class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"
-              ></span>
-              <span
-                class="text-[10px] font-bold text-blue-600 uppercase tracking-widest"
-                >Filtres Actifs</span
+            <div *ngIf="service.hasActiveFilters()" class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 animate-fade-in">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+              <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Filtres Actifs</span>
+              <button 
+                (click)="service.reinitialiserFiltres()"
+                class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase underline decoration-dotted offset-2 ml-1"
               >
-              <button
-                (click)="reinitialiserFiltres()"
-                class="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase underline decoration-dotted offset-2"
-              >
-                Tout effacer
+                Effacer
               </button>
             </div>
           </div>
 
-          <div
-            class="flex items-center gap-2 bg-white p-1 border border-slate-200 rounded-xl shadow-sm"
-          >
-            <button
-              (click)="filtreStatut.set('tous')"
-              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
-              [class]="
-                filtreStatut() === 'tous'
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-500 hover:bg-slate-50'
-              "
-            >
-              TOUS
-            </button>
-            <button
-              (click)="filtreStatut.set('online')"
-              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
-              [class]="
-                filtreStatut() === 'online'
-                  ? 'bg-emerald-500 text-white'
-                  : 'text-slate-500 hover:bg-slate-50'
-              "
-            >
-              EN LIGNE
-            </button>
-            <button
-              (click)="filtreStatut.set('offline')"
-              class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
-              [class]="
-                filtreStatut() === 'offline'
-                  ? 'bg-rose-500 text-white'
-                  : 'text-slate-500 hover:bg-slate-50'
-              "
-            >
-              HORS LIGNE
-            </button>
+          <div class="flex flex-wrap items-center gap-4 flex-1 justify-end">
+            <!-- Recherche Dash -->
+            <div class="relative w-full max-w-sm">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <input
+                type="text"
+                [value]="service.recherche()"
+                (input)="service.recherche.set($any($event.target).value)"
+                placeholder="Rechercher par nom ou IP..."
+                class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-slate-900/5 transition-all outline-none"
+              />
+            </div>
+
+            <!-- Filtres Statut Dash -->
+            <div class="flex items-center p-1 bg-slate-100 rounded-xl">
+              <button
+                (click)="service.filtreStatut.set('tous')"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                [class]="service.filtreStatut() === 'tous' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+              >
+                Tous
+              </button>
+              <button
+                (click)="service.filtreStatut.set('online')"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                [class]="service.filtreStatut() === 'online' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-emerald-600'"
+              >
+                En Ligne
+              </button>
+              <button
+                (click)="service.filtreStatut.set('offline')"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                [class]="service.filtreStatut() === 'offline' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-rose-600'"
+              >
+                Hors Ligne
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4">
           <div
-            *ngFor="let s of filteredServeurs()"
+            *ngFor="let s of service.filteredServeurs()"
             class="group relative bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap md:flex-nowrap items-center gap-6 transition-all hover:border-slate-300 hover:shadow-lg hover:shadow-slate-100 animate-slide-up"
           >
             <div
@@ -444,28 +355,11 @@ import { ServerFormComponent } from '../server-form/server-form.component';
 
         <!-- État vide : Aucun résultat avec filtres -->
         <div
-          *ngIf="
-            service.serveurs().length > 0 && filteredServeurs().length === 0
-          "
+          *ngIf="service.serveurs().length > 0 && service.filteredServeurs().length === 0"
           class="py-24 text-center bg-white border-2 border-dashed border-slate-200 rounded-3xl mt-10"
         >
-          <div
-            class="w-16 h-16 bg-blue-50 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
+          <div class="w-16 h-16 bg-blue-50 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </div>
           <h3 class="text-xl font-bold text-slate-900 mb-2">
             Aucun résultat trouvé
@@ -473,8 +367,8 @@ import { ServerFormComponent } from '../server-form/server-form.component';
           <p class="text-slate-500 text-sm max-w-xs mx-auto">
             Il n'y a aucun client correspondant à vos filtres actuels.
           </p>
-          <button
-            (click)="reinitialiserFiltres()"
+          <button 
+            (click)="service.reinitialiserFiltres()"
             class="mt-6 px-6 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-slate-200 active:scale-95"
           >
             Réinitialiser les filtres
@@ -500,33 +394,6 @@ export class DashboardComponent implements OnInit {
   totalServeurs = signal(0);
   serveursSains = signal(0);
   serveursEnPanne = signal(0);
-  montrerFormulaire = signal(false);
-
-  // Recherche et Filtres
-  recherche = signal('');
-  filtreStatut = signal<'tous' | 'online' | 'offline'>('tous');
-
-  filteredServeurs = computed(() => {
-    const all = this.service.serveurs();
-    const query = this.recherche().toLowerCase();
-    const status = this.filtreStatut();
-
-    return all.filter((s) => {
-      const matchQuery =
-        s.nom.toLowerCase().includes(query) ||
-        s.adresseIp.toLowerCase().includes(query);
-      const isOnline = this.estEnLigne(s);
-      const matchStatus =
-        status === 'tous' ||
-        (status === 'online' && isOnline) ||
-        (status === 'offline' && !isOnline);
-      return matchQuery && matchStatus;
-    });
-  });
-
-  hasActiveFilters = computed(() => {
-    return this.recherche() !== '' || this.filtreStatut() !== 'tous';
-  });
 
   constructor() {
     effect(
@@ -538,15 +405,6 @@ export class DashboardComponent implements OnInit {
       },
       { allowSignalWrites: true },
     );
-  }
-
-  rafraichir() {
-    this.service.chargerServeurs();
-  }
-
-  reinitialiserFiltres() {
-    this.recherche.set('');
-    this.filtreStatut.set('tous');
   }
 
   ngOnInit() {
@@ -586,7 +444,7 @@ export class DashboardComponent implements OnInit {
   onAjouterServeur(serveur: CreateServeur) {
     this.service.ajouterServeur(serveur).subscribe({
       next: () => {
-        this.montrerFormulaire.set(false);
+        this.service.montrerFormulaire.set(false);
       },
       error: (err) => {
         console.error("Erreur lors de l'ajout du serveur", err);
