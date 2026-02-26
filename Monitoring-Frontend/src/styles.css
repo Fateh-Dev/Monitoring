@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Design Tokens - Premium Palette HSL */
+    --p-primary: 258 66% 60%;      /* Purple */
+    --p-primary-hover: 258 66% 51%;
+    --p-bg: 210 20% 98%;          /* Background */
+    --p-surface: 0 0% 100%;       /* Surface */
+    --p-text: 215 28% 17%;
+    --p-text-muted: 215 14% 45%;
+    --p-border: 215 16% 91%;
+    
+    --p-success: 142 70% 45%;
+    --p-error: 0 72% 51%;
+    --p-warning: 35 92% 50%;
+    
+    --p-radius: 6px;              /* Consistent small radius */
+  }
+
+  body {
+    @apply m-0 p-0 bg-bg text-text antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+@layer components {
+  .premium-card {
+    @apply bg-surface/80 backdrop-blur-md border border-border rounded-premium;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 font-semibold text-sm rounded-premium border border-transparent cursor-pointer transition-all duration-200 gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-hover focus:ring-primary/50;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-text border-border hover:bg-bg focus:ring-border/50;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+}
+
+@layer utilities {
+  @keyframes status-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+    50% { transform: scale(1.2); opacity: 0.7; filter: blur(1px); }
+  }
+
+  .pulse-success {
+    animation: status-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    @apply bg-success;
+  }
+
+  .pulse-error {
+    animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    @apply bg-error;
+  }
+
+  .pulse-warning {
+    animation: status-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    @apply bg-warning;
+  }
+}

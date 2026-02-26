@@ -1,0 +1,28 @@
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+logs/
+# Node/Angular
+node_modules/
+dist/
+.angular/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.lock-wscript
+.parcel-cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
