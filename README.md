@@ -6,7 +6,7 @@ Une solution de monitoring moderne et performante conçue pour surveiller l'éta
 
 ## ✨ Fonctionnalités Clés
 
-- **Tableau de Bord Premium** : Interface ultra-moderne avec design épuré, sans ombres, et largeur optimisée (1600px).
+- **Tableau de Bord Premium** : Interface ultra-moderne avec design épuré, sans ombres, et largeur optimisée (1600px)
 - **Surveillance Temps Réel** : Suivi automatique de la disponibilité (uptime) et de la latence (ms).
 - **Gestion des Clients** : Ajout et configuration facile de nouveaux hôtes à superviser.
 - **Télémétrie Avancée** : Historique détaillé des temps de réponse et journalisation des incidents critiques.
