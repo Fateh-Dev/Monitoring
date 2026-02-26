@@ -31,7 +31,7 @@ import Chart from 'chart.js/auto';
         <h1
           class="text-2xl font-extrabold tracking-tight text-text border-l-2 border-border pl-4"
         >
-          Détails du Serveur
+          Détails du Client
         </h1>
       </header>
 

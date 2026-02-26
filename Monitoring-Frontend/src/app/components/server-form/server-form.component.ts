@@ -23,7 +23,7 @@ import { CreateServeur } from '../../models/monitoring.model';
       >
         <header class="flex justify-between items-center mb-8">
           <h2 class="text-xl font-bold tracking-tight text-text">
-            Nouvel Hôte
+            Nouveau Client
           </h2>
           <button
             class="text-text-muted hover:text-text text-2xl leading-none p-2 transition-colors"
@@ -57,7 +57,7 @@ import { CreateServeur } from '../../models/monitoring.model';
                 serverForm.get('nom')?.invalid && serverForm.get('nom')?.touched
               "
             >
-              Le nom est requis pour identifier l'hôte.
+              Le nom est requis pour identifier le client.
             </div>
           </div>
 
@@ -81,7 +81,7 @@ import { CreateServeur } from '../../models/monitoring.model';
                 serverForm.get('adresseIp')?.touched
               "
             >
-              L'adresse IP ou le nom d'hôte est requis.
+              L'adresse IP ou le nom du client est requis.
             </div>
           </div>
 
@@ -137,7 +137,7 @@ import { CreateServeur } from '../../models/monitoring.model';
               class="btn btn-primary shadow-lg shadow-primary/20"
               [disabled]="serverForm.invalid"
             >
-              Ajouter l'Hôte
+              Ajouter le Client
             </button>
           </div>
         </form>
