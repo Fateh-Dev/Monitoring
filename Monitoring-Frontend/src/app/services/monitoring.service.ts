@@ -14,17 +14,19 @@ import { Observable, tap } from 'rxjs';
 })
 export class MonitoringService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5251/api/servers'; // Port configuré dans launchSettings.json
+  private apiUrl = 'http://localhost:5000/api/servers'; // Application configurée sur le port 5000
 
   // Signaux pour l'état réactif
   serveurs = signal<Serveur[]>([]);
   estEnChargement = signal<boolean>(false);
   montrerFormulaire = signal<boolean>(false);
   sidebarCollapsed = signal<boolean>(false);
-  
+
   // Nouveaux signaux pour le thème et la vue
   modeSombre = signal<boolean>(localStorage.getItem('theme') === 'dark');
-  dashboardView = signal<'list' | 'grid'>((localStorage.getItem('view') as 'list' | 'grid') || 'list');
+  dashboardView = signal<'list' | 'grid'>(
+    (localStorage.getItem('view') as 'list' | 'grid') || 'list',
+  );
   serveurAModifier = signal<Serveur | null>(null);
 
   constructor() {
@@ -100,12 +102,12 @@ export class MonitoringService {
   }
 
   modifierServeur(id: string, serveur: CreateServeur): Observable<void> {
-    return this.http
-      .put<void>(`${this.apiUrl}/${id}`, serveur)
-      .pipe(tap(() => {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, serveur).pipe(
+      tap(() => {
         this.chargerServeurs();
         this.serveurAModifier.set(null);
-      }));
+      }),
+    );
   }
 
   supprimerServeur(id: string): Observable<void> {
