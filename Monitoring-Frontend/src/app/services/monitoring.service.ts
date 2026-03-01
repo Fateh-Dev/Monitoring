@@ -116,7 +116,7 @@ export class MonitoringService {
 
   basculerActivation(id: string, estActif: boolean): Observable<void> {
     return this.http
-      .put<void>(`${this.apiUrl}/${id}`, { estActif })
+      .put<void>(`${this.apiUrl}/${id}/toggle`, { estActif })
       .pipe(tap(() => this.chargerServeurs()));
   }
 

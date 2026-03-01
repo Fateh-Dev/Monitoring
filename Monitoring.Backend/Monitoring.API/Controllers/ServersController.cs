@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Monitoring.Application.DTOs;
@@ -97,7 +98,7 @@ public class ServersController : ControllerBase
             IpAddress = dto.IpAddress,
             HealthUrl = dto.HealthUrl,
             ApiKey = dto.ApiKey,
-            IsActive = true,
+            IsActive = dto.IsActive ?? true,
         };
 
         _context.Servers.Add(server);
@@ -161,8 +162,23 @@ public class ServersController : ControllerBase
         _context.Incidents.RemoveRange(incidents);
 
         _context.Servers.Remove(server);
+        return NoContent();
+    }
+
+    [HttpPut("{id}/toggle")]
+    public async Task<IActionResult> ToggleActivation(Guid id, [FromBody] ToggleDto dto)
+    {
+        var server = await _context.Servers.FindAsync(id);
+        if (server == null)
+        {
+            return NotFound();
+        }
+
+        server.IsActive = dto.EstActif;
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
+
+    public record ToggleDto([property: JsonPropertyName("estActif")] bool EstActif);
 }
