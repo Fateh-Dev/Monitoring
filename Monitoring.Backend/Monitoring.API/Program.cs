@@ -13,6 +13,8 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.WebHost.UseUrls("http://*:5000");
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -45,15 +47,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAngular");
-app.UseAuthorization();
-app.MapControllers();
-
 // Ensure Database is created
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // EnsureCreated logic creates the database if it doesn't exist
     db.Database.EnsureCreated();
 }
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseCors("AllowAngular");
+app.UseAuthorization();
+app.MapControllers();
+
+// Fallback logic for Angular (SPA)
+app.MapFallbackToFile("index.html");
 
 app.Run();
