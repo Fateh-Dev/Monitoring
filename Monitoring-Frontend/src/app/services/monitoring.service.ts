@@ -1,10 +1,11 @@
-import { Injectable, signal, inject, computed } from '@angular/core';
+import { Injectable, signal, inject, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   Serveur,
   Verification,
   Incident,
   CreateServeur,
+  GlobalIncident,
 } from '../models/monitoring.model';
 import { Observable, tap } from 'rxjs';
 
@@ -19,6 +20,26 @@ export class MonitoringService {
   serveurs = signal<Serveur[]>([]);
   estEnChargement = signal<boolean>(false);
   montrerFormulaire = signal<boolean>(false);
+  sidebarCollapsed = signal<boolean>(false);
+  
+  // Nouveaux signaux pour le thème et la vue
+  modeSombre = signal<boolean>(localStorage.getItem('theme') === 'dark');
+  dashboardView = signal<'list' | 'grid'>((localStorage.getItem('view') as 'list' | 'grid') || 'list');
+  serveurAModifier = signal<Serveur | null>(null);
+
+  constructor() {
+    // Effet pour le mode sombre
+    effect(() => {
+      const isDark = this.modeSombre();
+      document.documentElement.classList.toggle('dark', isDark);
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    // Effet pour la vue du dashboard
+    effect(() => {
+      localStorage.setItem('view', this.dashboardView());
+    });
+  }
 
   // Filtres globaux
   recherche = signal('');
@@ -46,6 +67,14 @@ export class MonitoringService {
     });
   });
 
+  alertesActivesCompte = computed(() => {
+    return this.serveurs().reduce((acc, s) => {
+      // Un serveur est "en panne" si son dernier statut n'est pas 0 (Sain)
+      const isOnline = Number(s.dernierStatut) === 0;
+      return acc + (isOnline ? 0 : 1);
+    }, 0);
+  });
+
   hasActiveFilters = computed(() => {
     return this.recherche() !== '' || this.filtreStatut() !== 'tous';
   });
@@ -70,12 +99,37 @@ export class MonitoringService {
       .pipe(tap(() => this.chargerServeurs()));
   }
 
+  modifierServeur(id: string, serveur: CreateServeur): Observable<void> {
+    return this.http
+      .put<void>(`${this.apiUrl}/${id}`, serveur)
+      .pipe(tap(() => {
+        this.chargerServeurs();
+        this.serveurAModifier.set(null);
+      }));
+  }
+
+  supprimerServeur(id: string): Observable<void> {
+    return this.http
+      .delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(tap(() => this.chargerServeurs()));
+  }
+
+  basculerActivation(id: string, estActif: boolean): Observable<void> {
+    return this.http
+      .put<void>(`${this.apiUrl}/${id}`, { estActif })
+      .pipe(tap(() => this.chargerServeurs()));
+  }
+
   getHistorique(id: string): Observable<Verification[]> {
     return this.http.get<Verification[]>(`${this.apiUrl}/${id}/history`);
   }
 
   getIncidents(id: string): Observable<Incident[]> {
     return this.http.get<Incident[]>(`${this.apiUrl}/${id}/incidents`);
+  }
+
+  getGlobalIncidents(): Observable<GlobalIncident[]> {
+    return this.http.get<GlobalIncident[]>(`${this.apiUrl}/incidents`);
   }
 
   reinitialiserFiltres() {

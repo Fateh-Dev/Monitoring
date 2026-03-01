@@ -15,6 +15,7 @@ export interface Serveur {
   dernierStatut: StatutSante;
   dernierTempsReponseMs: number;
   derniereVerification: Date;
+  apiKey?: string;
 }
 
 export interface Verification {
@@ -32,9 +33,19 @@ export interface Incident {
   raison?: string;
 }
 
+export interface GlobalIncident {
+  id: string;
+  debutLe: Date;
+  resoluLe?: Date;
+  raison?: string;
+  serveurId: string;
+  serveurNom: string;
+}
+
 export interface CreateServeur {
   nom: string;
   adresseIp: string;
   urlSante: string;
   apiKey?: string;
+  estActif?: boolean;
 }

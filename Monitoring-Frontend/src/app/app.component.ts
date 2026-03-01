@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { MonitoringService } from './services/monitoring.service';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,10 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     <div class="app-layout">
       <app-sidebar></app-sidebar>
 
-      <main class="main-content">
+      <main 
+        class="main-content"
+        [style.margin-left]="service.sidebarCollapsed() ? '5rem' : '18rem'"
+      >
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -24,11 +28,10 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
       }
       .main-content {
         flex: 1;
-        margin-left: 18rem; /* matches w-72 */
       }
       @media (max-width: 768px) {
         .main-content {
-          margin-left: 0;
+          margin-left: 0 !important;
         }
       }
     `,
@@ -36,4 +39,5 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 })
 export class AppComponent {
   title = 'Monitoring-Frontend';
+  service = inject(MonitoringService);
 }

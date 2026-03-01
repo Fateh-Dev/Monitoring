@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    /* Design Tokens - Premium Palette HSL */
-    --p-primary: 258 66% 60%;      /* Purple */
-    --p-primary-hover: 258 66% 51%;
-    --p-bg: 210 20% 98%;          /* Background */
-    --p-surface: 0 0% 100%;       /* Surface */
+    /* Design Tokens - Light Palette */
+    --p-primary: 221 83% 53%;      /* Royal Blue */
+    --p-primary-hover: 221 83% 43%;
+    --p-bg: 210 20% 98%;
+    --p-surface: 0 0% 100%;
     --p-text: 215 28% 17%;
     --p-text-muted: 215 14% 45%;
     --p-border: 215 16% 91%;
@@ -17,7 +17,19 @@
     --p-error: 0 72% 51%;
     --p-warning: 35 92% 50%;
     
-    --p-radius: 6px;              /* Consistent small radius */
+    --p-radius: 12px;
+  }
+
+  .dark :root {
+    /* Design Tokens - Dark Palette (Premium Ebony) */
+    --p-bg: 222 47% 7%;           /* Deep Ebony */
+    --p-surface: 222 47% 11%;      /* Slate Surface */
+    --p-text: 210 40% 98%;
+    --p-text-muted: 215 20% 65%;
+    --p-border: 217 33% 17%;
+    
+    --p-primary: 217 91% 60%;      /* Vibrant Sapphire */
+    --p-primary-hover: 217 91% 50%;
   }
 
   body {
@@ -32,7 +44,7 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 font-semibold text-sm rounded-premium border border-transparent cursor-pointer transition-all duration-200 gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-4 py-2 font-semibold text-sm rounded-premium border border-transparent cursor-pointer gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-primary {
@@ -49,23 +61,15 @@
 }
 
 @layer utilities {
-  @keyframes status-pulse {
-    0%, 100% { transform: scale(1); opacity: 1; filter: blur(0px); }
-    50% { transform: scale(1.2); opacity: 0.7; filter: blur(1px); }
-  }
-
   .pulse-success {
-    animation: status-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     @apply bg-success;
   }
 
   .pulse-error {
-    animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     @apply bg-error;
   }
 
   .pulse-warning {
-    animation: status-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     @apply bg-warning;
   }
 }

@@ -19,12 +19,12 @@ import Chart from 'chart.js/auto';
   imports: [CommonModule, RouterModule],
   template: `
     <div
-      class="detail-container animate-fade-in p-6 max-w-6xl mx-auto space-y-8"
+      class="detail-container p-6 max-w-6xl mx-auto space-y-8"
     >
       <header class="flex items-center gap-4 mb-8">
         <a
           routerLink="/dashboard"
-          class="text-sm font-bold text-text-muted hover:text-primary transition-colors flex items-center gap-2"
+          class="text-sm font-bold text-text-muted hover:text-primary flex items-center gap-2"
         >
           <span class="text-lg">←</span> Retour au Dashboard
         </a>
@@ -73,7 +73,7 @@ import Chart from 'chart.js/auto';
                 [ngClass]="
                   incident.resoluLe
                     ? 'bg-success/10 text-success'
-                    : 'bg-error/10 text-error animate-pulse'
+                    : 'bg-error/10 text-error'
                 "
               >
                 {{
@@ -114,7 +114,7 @@ import Chart from 'chart.js/auto';
               <tbody class="divide-y divide-border">
                 <tr
                   *ngFor="let check of verifications()"
-                  class="text-sm hover:bg-bg/50 transition-colors"
+                  class="text-sm hover:bg-bg/50"
                 >
                   <td class="py-3 pr-4 font-bold tabular-nums text-text">
                     {{ check.mesureLe | date: 'HH:mm:ss' }}

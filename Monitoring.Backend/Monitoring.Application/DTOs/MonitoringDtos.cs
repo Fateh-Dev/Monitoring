@@ -34,5 +34,15 @@ public record CreateServerDto(
     [property: JsonPropertyName("nom")] string Name,
     [property: JsonPropertyName("adresseIp")] string IpAddress,
     [property: JsonPropertyName("urlSante")] string HealthUrl,
-    [property: JsonPropertyName("apiKey")] string? ApiKey
+    [property: JsonPropertyName("apiKey")] string? ApiKey,
+    [property: JsonPropertyName("estActif")] bool? IsActive
+);
+
+public record GlobalIncidentDto(
+    [property: JsonPropertyName("id")] Guid Id,
+    [property: JsonPropertyName("debutLe")] DateTime StartedAt,
+    [property: JsonPropertyName("resoluLe")] DateTime? ResolvedAt,
+    [property: JsonPropertyName("raison")] string? Reason,
+    [property: JsonPropertyName("serveurId")] Guid ServerId,
+    [property: JsonPropertyName("serveurNom")] string ServerName
 );

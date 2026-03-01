@@ -44,6 +44,25 @@ public class ServersController : ControllerBase
         return Ok(servers);
     }
 
+    [HttpGet("incidents")]
+    public async Task<ActionResult<IEnumerable<GlobalIncidentDto>>> GetGlobalIncidents()
+    {
+        var incidents = await _context
+            .Incidents.Include(i => i.Server)
+            .OrderByDescending(i => i.StartedAt)
+            .Select(i => new GlobalIncidentDto(
+                i.Id,
+                i.StartedAt,
+                i.ResolvedAt,
+                i.Reason,
+                i.ServerId,
+                i.Server.Name
+            ))
+            .ToListAsync();
+
+        return Ok(incidents);
+    }
+
     [HttpGet("{id}/history")]
     public async Task<ActionResult<IEnumerable<CheckDto>>> GetServerHistory(Guid id)
     {
@@ -99,5 +118,51 @@ public class ServersController : ControllerBase
                 DateTime.UtcNow
             )
         );
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateServer(Guid id, CreateServerDto dto)
+    {
+        var server = await _context.Servers.FindAsync(id);
+        if (server == null)
+        {
+            return NotFound();
+        }
+
+        server.Name = dto.Name;
+        server.IpAddress = dto.IpAddress;
+        server.HealthUrl = dto.HealthUrl;
+        server.ApiKey = dto.ApiKey;
+
+        if (dto.IsActive.HasValue)
+        {
+            server.IsActive = dto.IsActive.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteServer(Guid id)
+    {
+        var server = await _context.Servers.FindAsync(id);
+        if (server == null)
+        {
+            return NotFound();
+        }
+
+        // Suppression des données liées (Cascading should handle this, but explicit is safer)
+        var checks = _context.Checks.Where(c => c.ServerId == id);
+        _context.Checks.RemoveRange(checks);
+
+        var incidents = _context.Incidents.Where(i => i.ServerId == id);
+        _context.Incidents.RemoveRange(incidents);
+
+        _context.Servers.Remove(server);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
