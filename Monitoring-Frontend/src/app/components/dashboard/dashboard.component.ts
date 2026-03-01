@@ -202,14 +202,14 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
                 class="px-4 py-1.5 rounded-lg text-xs font-bold"
                 [class]="service.filtreStatut() === 'online' ? 'bg-emerald-500/10 text-emerald-600' : 'text-text-muted hover:text-text'"
               >
-                Online
+                En Ligne
               </button>
               <button
                 (click)="service.filtreStatut.set('offline')"
                 class="px-4 py-1.5 rounded-lg text-xs font-bold"
                 [class]="service.filtreStatut() === 'offline' ? 'bg-rose-500/10 text-rose-600' : 'text-text-muted hover:text-text'"
               >
-                Offline
+                Hors Ligne
               </button>
             </div>
           </div>

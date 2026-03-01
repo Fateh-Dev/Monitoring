@@ -31,7 +31,7 @@ public class MonitoringBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Monitoring Background Service is starting.");
+        _logger.LogInformation("Le service de surveillance en arrière-plan démarre.");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -73,7 +73,7 @@ public class MonitoringBackgroundService : BackgroundService
             if (reply.Status != IPStatus.Success)
             {
                 check.Status = HealthStatus.Unreachable;
-                check.Details = $"Ping failed: {reply.Status}";
+                check.Details = $"Échec du ping : {reply.Status}";
             }
             else
             {
@@ -96,12 +96,12 @@ public class MonitoringBackgroundService : BackgroundService
                     // On pourrait parser le JSON ici si besoin
                     check.Status =
                         check.ResponseTimeMs > 1000 ? HealthStatus.Slow : HealthStatus.Healthy;
-                    check.Details = "Application healthy";
+                    check.Details = "Application saine";
                 }
                 else
                 {
                     check.Status = HealthStatus.Down;
-                    check.Details = $"HTTP Error: {response.StatusCode}";
+                    check.Details = $"Erreur HTTP : {response.StatusCode}";
                 }
             }
         }
@@ -109,8 +109,12 @@ public class MonitoringBackgroundService : BackgroundService
         {
             stopwatch.Stop();
             check.Status = HealthStatus.Down;
-            check.Details = $"Error: {ex.Message}";
-            _logger.LogError(ex, "Error checking server {ServerName}", server.Name);
+            check.Details = $"Erreur : {ex.Message}";
+            _logger.LogError(
+                ex,
+                "Erreur lors de la vérification du serveur {ServerName}",
+                server.Name
+            );
         }
 
         context.Checks.Add(check);
@@ -167,16 +171,19 @@ public class MonitoringBackgroundService : BackgroundService
             var incident = new Incident
             {
                 ServerId = server.Id,
-                Reason = "3 consecutive failures detected.",
+                Reason = "3 échecs consécutifs détectés.",
             };
             context.Incidents.Add(incident);
-            _logger.LogWarning("ALERT: Server {ServerName} is down!", server.Name);
+            _logger.LogWarning("ALERTE : Le serveur {ServerName} est hors service !", server.Name);
             // TODO: Send Email
         }
         else if (!isDown && ongoingIncident != null)
         {
             ongoingIncident.ResolvedAt = DateTime.UtcNow;
-            _logger.LogInformation("RESOLVED: Server {ServerName} is back online.", server.Name);
+            _logger.LogInformation(
+                "RÉSOLU : Le serveur {ServerName} est de nouveau en ligne.",
+                server.Name
+            );
         }
     }
 }

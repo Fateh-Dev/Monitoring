@@ -18,7 +18,7 @@ app.Use(
         if (!context.Request.Headers.TryGetValue("X-API-KEY", out var extractedApiKey))
         {
             context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("API Key missing");
+            await context.Response.WriteAsync("Clé API manquante");
             return;
         }
 
@@ -26,7 +26,7 @@ app.Use(
         if (!apiKey.Equals(extractedApiKey))
         {
             context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Unauthorized client");
+            await context.Response.WriteAsync("Client non autorisé");
             return;
         }
 
@@ -41,8 +41,8 @@ app.MapGet(
         return Results.Ok(
             new
             {
-                status = "Healthy",
-                databaseStatus = "Connected",
+                status = "Sain",
+                databaseStatus = "Connecté",
                 serverTime = DateTime.UtcNow,
                 version = "1.0.0",
             }
